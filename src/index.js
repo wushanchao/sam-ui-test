@@ -4,8 +4,20 @@ process.once('SIGINT', () => {
     process.exit(1);
 });
 
-const suites = function (suiteObj) {
-    describe(suiteObj.name || 'sam-ui-test', function () {
+const suites = function (suiteObj={}) {
+    // 验证
+    const needKeyObj = {
+        name: 'name is required',
+        browser:'browser is required',
+        step:'step is required'
+    }
+    Object.keys(needKeyObj).map((item)=>{
+        if(suiteObj[item] === undefined){
+            throw needKeyObj[item]
+        }
+    });
+
+    describe(suiteObj.name, function () {
         let browser;
         let page;
 
@@ -20,9 +32,12 @@ const suites = function (suiteObj) {
 
 
         const variableTempalte = function (str, obj) {
+            // 如果名称以$$.开头意味着这是一个上下文变量。
             if (Object.prototype.toString.call(str) === '[object String]' && str.slice(0, 3) === '$$.') {
                 const remainArr = str.slice(3).split('.');
                 let temp = obj;
+
+                // 返回数组最后一个值
                 for (let i of remainArr) {
                     temp = obj[i];
                 }
@@ -36,13 +51,25 @@ const suites = function (suiteObj) {
         const transformAction = function () {
             return async function (obj, actionScope) {
                 let arg = obj['arg'] || [];
+
+                // 必要的校验
+                if(obj.method === undefined){
+                    throw ("action item's method is required")
+                }
+
+                // 对arg数组里面的值进行转义
                 for (let i = 0; i < arg.length; i++) {
                     let item = arg[i];
+
                     // todo 获取局部变量方式优化
                     // todo 获取全局变量获取方式
                     arg[i] = variableTempalte(item, actionScope);
                 }
+
+                // action默认上下文是page
                 let context = obj.context || page;
+
+                // 对method为except进行特别处理
                 if (obj.method === 'expect') {
                     expect(arg[0])[arg[1]](arg[2]);
                 }
@@ -51,6 +78,8 @@ const suites = function (suiteObj) {
                     const fn = async function () {
                         return await context[obj.method].apply(context, obj.arg);
                     }
+
+                    // action若有name，便存储返回值，方便后面action使用。
                     if (name) {
                         actionScope[name] = await fn();
                     }
@@ -62,20 +91,20 @@ const suites = function (suiteObj) {
             };
         };
 
-        const transformStep = function (obj) {
+        const transformStep = function (step) {
             return async function () {
-                let context = obj.context || page;
-                global.test(obj.name, async function () {
-                    let action = obj.action;
+                let context = step.context || page;
+                global.test(step.name, async function () {
+                    let action = step.action;
                     let tempAction = [];
-                    let tempObj = {};
+                    let scope = {};
                     for (let item of action) {
                         tempAction.push(transformAction());
                     }
 
                     for (let i = 0; i < tempAction.length; i++) {
                         let actionItem = action[i];
-                        await tempAction[i](actionItem, tempObj);
+                        await tempAction[i](actionItem, scope);
                     }
 
 
