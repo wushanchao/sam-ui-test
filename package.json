@@ -2,7 +2,7 @@
   "name": "sam-ui-test",
   "version": "1.0.3",
   "description": "",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "babel src -d lib",
     "test": "jest ./baidu.test.js"
@@ -11,11 +11,19 @@
     "type": "git",
     "url": "https://github.com/wushanchao/sam-ui-test.git"
   },
+  "files": [
+    "lib",
+    "src"
+  ],
   "keywords": [],
   "author": "wushanchao",
   "license": "MIT",
   "dependencies": {
-    "jest": "^26.6.3",
-    "puppeteer": "^9.1.1"
+    "jest": "26.6.3",
+    "puppeteer": "9.1.1"
+  },
+  "peerDependencies": {
+    "jest": "26.6.3",
+    "puppeteer": "9.1.1"
   }
 }

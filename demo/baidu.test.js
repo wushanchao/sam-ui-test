@@ -1,5 +1,5 @@
 const suite = require("../src/index");
-console.log("suite", suite);
+
 suite({
   name: "百度搜索场景",
   browser: {
@@ -30,6 +30,10 @@ suite({
         {
           method: "click",
           arg: ["input[type='submit']"],
+        },
+        {
+          method: "waitForSelector",
+          arg: ['div[id="1"] em'],
         },
         {
           method: "$eval",
