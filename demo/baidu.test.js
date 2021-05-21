@@ -1,6 +1,6 @@
-const suite = require("../src/index");
+const samui = require("../src/index");
 
-suite({
+samui({
   name: "百度搜索场景",
   browser: {
     executablePath:
@@ -10,7 +10,7 @@ suite({
   },
   step: [
     {
-      name: "获取百度搜索的第一个结果标题",
+      name: "百度搜索google第一个搜索结果标题是google谷歌",
       action: [
         {
           method: "goto",

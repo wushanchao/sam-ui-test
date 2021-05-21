@@ -1,10 +1,10 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 process.once('SIGINT', () => {
     process.exit(1);
 });
 
-const suites = function (suiteObj={}) {
+const samui = (suiteObj={}) => {
     // 验证
     const needKeyObj = {
         name: 'name is required',
@@ -125,4 +125,4 @@ const suites = function (suiteObj={}) {
 
 
 
-module.exports = suites;
+module.exports = samui;

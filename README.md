@@ -1,5 +1,8 @@
 # sam-ui-test
-基于Chrome，Jest，puppeteer的自动化UI业务测试配置库。
+组合Chrome，Jest，Puppeteer的自动化UI业务测试配置库。
+
+# 背景
+Puppeteer的作为
 
 # 使用
 ### 原理  
@@ -103,9 +106,10 @@ action里面的method方法默认是puppeteer的page实例方法。具体可参�
 当method方法是expect时，expect是jest的expect方法。  
 
 ### 代码发布
-1. 执行`npm login`登录账号
+1. 执行`npm login --registry http://registry.npmjs.org`登录账号
 2. 修改package.json版本号，通常+1
-3. 执行`npm publish`发布
+3. 执行`npm publish --registry http://registry.npmjs.org`发布
+
 
 ### 自动化测试规划
 0. 配置化基本功能完善
