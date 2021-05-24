@@ -2,11 +2,9 @@ const samui = require("../src/index");
 
 samui({
   name: "百度搜索场景",
-  browser: {
+  browserConfig: {
     executablePath:
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    headless: false,
-    slowMo: 200,
   },
   step: [
     {

@@ -1,8 +1,5 @@
 const puppeteer = require("puppeteer-core");
-
-process.once("SIGINT", () => {
-  process.exit(1);
-});
+const defaultBrowserConfig = require('./browserConfig');
 
 const variableTempalte = (str, obj) => {
   // 如果名称以$$.开头意味着这是一个上下文变量。
@@ -23,26 +20,33 @@ const variableTempalte = (str, obj) => {
   }
 };
 
+
 const samui = (suiteObj = {}) => {
+
+  const {browserConfig,} = suiteObj;
+
   // 验证
   const needKeyObj = {
     name: "name is required",
-    browser: "browser is required",
+    browserConfig: "browserConfig is required",
     step: "step is required",
   };
+
   Object.keys(needKeyObj).map((item) => {
     if (suiteObj[item] === undefined) {
       throw needKeyObj[item];
     }
   });
 
-  describe(suiteObj.name, function () {
+  Object.assign(browserConfig, defaultBrowserConfig);
+
+  describe(suiteObj.name, () => {
     let browser;
     let page;
 
     beforeAll(async () => {
-      browser = await puppeteer.launch(suiteObj.browser);
-      page = await browser.newPage();
+      browser = await puppeteer.launch(browserConfig);
+      page = (await browser.pages())[0];
     });
 
     afterAll(() => {
@@ -50,7 +54,7 @@ const samui = (suiteObj = {}) => {
     }, 2000);
 
     const transformAction = () => {
-      return async function (obj, actionScope) {
+      return async (obj, actionScope) => {
         let arg = obj["arg"] || [];
 
         // 必要的校验
@@ -75,7 +79,7 @@ const samui = (suiteObj = {}) => {
           expect(arg[0])[arg[1]](arg[2]);
         } else {
           const name = obj["name"];
-          const fn = async function () {
+          const fn = async ()=> {
             return await context[obj.method].apply(context, obj.arg);
           };
 
@@ -90,11 +94,11 @@ const samui = (suiteObj = {}) => {
     };
 
     const transformStep = (step) => {
-      return async function () {
-        let context = step.context || page;
+      return async () => {
+        const context = step.context || page;
         global.test(
           step.name,
-          async function () {
+          async () => {
             let action = step.action;
             let tempAction = [];
             let scope = {};
@@ -103,7 +107,7 @@ const samui = (suiteObj = {}) => {
             }
 
             for (let i = 0; i < tempAction.length; i++) {
-              let actionItem = action[i];
+              const actionItem = action[i];
               await tempAction[i](actionItem, scope);
             }
 
@@ -115,7 +119,7 @@ const samui = (suiteObj = {}) => {
     };
 
     const transformScene = (stepArr) => {
-      for (let step of stepArr) {
+      for (const step of stepArr) {
         transformStep(step)();
       }
     };
@@ -123,5 +127,9 @@ const samui = (suiteObj = {}) => {
     transformScene(suiteObj.step);
   });
 };
+
+process.once("SIGINT", () => {
+  process.exit(1);
+});
 
 module.exports = samui;
