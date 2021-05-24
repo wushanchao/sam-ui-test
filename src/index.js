@@ -21,7 +21,7 @@ const variableTempalte = (str, obj) => {
 };
 
 
-const samui = (suiteObj = {}) => {
+const samuitest = (suiteObj = {}) => {
 
   const {browserConfig,} = suiteObj;
 
@@ -132,4 +132,4 @@ process.once("SIGINT", () => {
   process.exit(1);
 });
 
-module.exports = samui;
+module.exports = samuitest;

@@ -1,6 +1,6 @@
-const samui = require("../src/index");
+const samuitest = require("../src/index");
 
-samui({
+samuitest({
   name: "百度搜索场景",
   browserConfig: {
     executablePath:

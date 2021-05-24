@@ -1,13 +1,13 @@
 # sam-ui-test
 
-sam-ui-test是一个组合 Chrome，Jest，Puppeteer 的自动化UI测试配置库。  
-它通过面向配置编程的思路，结合Jest的断言能力和Puppeteer控制Chrome的能力，来降低部分场景下的自动化UI测试的上手成本。
+sam-ui-test 是一个组合 Chrome，Jest，Puppeteer 的自动化 UI 测试配置库。  
+它通过面向配置编程的思路，结合 Jest 的断言能力和 Puppeteer 控制 Chrome 的能力，来降低部分场景下的自动化 UI 测试的上手成本。
 
 # 使用
 
 ### 原理  
 
-基于Jest对UI测试场景进行抽象封装测试用例：
+基于 Jest 对 UI 测试场景进行抽象封装测试用例：
 
 ```
 场景，步骤，操作行为，期望结果
@@ -15,70 +15,44 @@ sam-ui-test是一个组合 Chrome，Jest，Puppeteer 的自动化UI测试配置�
 
 ### 使用步骤
 
+0. 一些依赖
+
+- Node.js >= 10.x  
+
+- peerDependencies  
+jest >= 26.6.3  
+puppeteer-core >= 9.1.1
+
+
 1. 安装 sam-ui-test
 
 ```
 npm install sam-ui-test --save
 ```
 
-2. 新建测试文件`ui.test.js`
+2. 新建测试文件`example.test.js`
    并添加内容如下。
 
 ```javascript
-const suite = require("sam-ui-test");
-suite({
-  name: "百度搜索场景",
-  browser: {
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    headless: false,
-    slowMo: 200,
+const samuitest = require("sam-ui-test");
+
+samuitest({
+  name: "截屏",
+  browserConfig: {
+    // Mac系统
+    executablePath:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   },
   step: [
     {
-      name: "获取百度搜索的第一个结果标题",
+      name: "打开百度并对首页进行截屏",
       action: [
         {
           method: "goto",
           arg: ["https://www.baidu.com"],
         },
         {
-          method: "waitForSelector",
-          arg: ["#kw"],
-        },
-        {
-          method: "bringToFront",
-        },
-        {
-          method: "type",
-          arg: ["#kw", "google"],
-        },
-        {
-          method: "$eval",
-          arg: [
-            'div[id="1"] em',
-            function (h1) {
-              return h1.innerHTML;
-            },
-          ],
-          name: "text",
-        },
-        {
-          method: "expect",
-          arg: ["$$.text", "toBe", "Google"],
-        },
-      ],
-    },
-    {
-      name: "点击第一条链接",
-      action: [
-        {
-          method: "waitForSelector",
-          arg: ["h3.t > a"],
-        },
-        {
-          method: "click",
-          arg: ["h3.t:nth-of-type(1) > a"],
+          method: "screenshot",
+          arg: [{ path: "example.png" }],
         },
       ],
     },
@@ -86,11 +60,26 @@ suite({
 });
 ```
 
+对比下 puppeteer 官网的代码
+
+```javascript
+const puppeteer = require("puppeteer");
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto("https://example.com");
+  await page.screenshot({ path: "example.png" });
+
+  await browser.close();
+})();
+```
+
 3. 更改 package.json 文件
 
 ```javascript
 "scripts": {
-    "test": "jest ./ui.test.js"
+    "test": "jest ./example.test.js"
 },
 ```
 
@@ -103,7 +92,8 @@ npm run test
 ### 解释
 
 action 里面的 method 方法默认是 puppeteer 的 page 实例方法。具体可参考[这个链接](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#class-page)。  
-当 method 方法是 expect 时，expect 是 jest 的 expect 方法。
+当 method 方法是 expect 时，expect 是 jest 的 expect 方法。  
+后续提供上下文切换选项。
 
 ### 代码发布
 
@@ -115,10 +105,9 @@ action 里面的 method 方法默认是 puppeteer 的 page 实例方法。具体
 
 - 配置化基本功能完善  
    场景变量，行动变量的支持
-   配置参数校验
-   自定义 action 函数
-- 配置化转 DSL 化  
-- 自动化接口测试和自动化 UI 测试的接口一致化  
-- 优化多进程并行测试方案  
-- 优化需求变化引起的测试用例变化同步更新方案  
-- 结合自动化接口测试的功能  
+  配置参数校验
+  自定义 action 函数
+- 配置化转 DSL 化
+- 自动化接口测试和自动化 UI 测试的接口一致化
+- 优化多进程并行测试方案
+- 优化需求变化引起的测试用例变化同步更新方案
